@@ -92,6 +92,7 @@ int main(int argc, char** argv)
       ast->Print();
   }
 
+  /*
   CSL::cs_element cs = Flattener::Flatten(ast);
 
   if (print_cs)
@@ -100,6 +101,7 @@ int main(int argc, char** argv)
   }
 
   CSEM csem(cs, false);
+  */
 
 
   return 0;
