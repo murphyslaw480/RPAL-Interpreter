@@ -139,6 +139,7 @@ namespace CSL
 
   cs_element make_cond(std::vector<cs_element> if_true, std::vector<cs_element> if_false);
                        
+  cs_element make_env();
 }
 
 #endif

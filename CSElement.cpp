@@ -197,4 +197,11 @@ namespace CSL
     el.detail = detail;
     return el;
   }
+
+  cs_element make_env()
+  {
+    cs_element el;
+    el.type = r_env;
+    return el;
+  }
 }

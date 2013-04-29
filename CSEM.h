@@ -13,7 +13,7 @@
 class CSEM
 {
     public:
-        CSEM(CSL::cs_element top_cs, bool debug);
+        CSEM(CSL::cs_element top_cs);
 
     private:
         struct environment

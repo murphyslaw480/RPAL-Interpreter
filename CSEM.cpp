@@ -6,11 +6,13 @@
 using namespace std;
 using namespace CSL;
 
-CSEM::CSEM(cs_element top_cs, bool debug)
+CSEM::CSEM(cs_element top_cs)
 {
-    _debug_mode = debug;
     //push enclosing environment markers
+    _control.push(CSL::make_env());
+    _stack.push(CSL::make_env());
     //push all elements of top level control struct
+    push_control_struct(boost::get<cs_control_struct>(top_cs.detail));
 }
 
 void CSEM::debug(string msg)
