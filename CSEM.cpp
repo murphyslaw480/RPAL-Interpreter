@@ -43,8 +43,8 @@ void stack_lambda(cs_element lam_el)
   /*  ...lam<x,k>     ...
    *  ...             lam<x,k,c>    Where c = current_env index
    */
-  ASSERT(name_el.type == r_id, "stack_lambda expected r_lambda, got " + name_el.type);
-  cs_name name = boost::get<cs_lambda>(name_el.detail);
+  ASSERT(lam_el.type == r_id, "stack_lambda expected r_lambda, got " + lam_el.type);
+  cs_lambda lambda = boost::get<cs_lambda>(lam_el.detail);
 }
 //rule 3 (6 and 7 with optimized machine)
 void apply_op(cs_element op_el)
@@ -54,13 +54,13 @@ void apply_op(cs_element op_el)
    * ...     Result...
   */
   ASSERT(op_el.type == r_unop || op_el.type == r_binop, "apply_op expected r_op, got " + op_el.type);
+
+  cs_op op = boost::get<cs_op>(op_el.detail);
   if (op_el.type == r_unop)
   {
-    cs_unop op = boost::get<cs_unop>(op_el.detail);
   }
   else
   {
-    cs_binop op = boost::get<cs_binop>(op_el.detail);
   }
   
 }
@@ -81,8 +81,7 @@ void exit_env(cs_element env_el)
    *  ...e<n>     value e<n>...
    *  ...         value...
   */
-  ASSERT(env_el.type = r_env, "exit_env expected r_env, got " + env_el.type);
-  cs_env = boost::get<cs_env>(env_el.detail);
+  ASSERT(env_el.type == r_env, "exit_env expected r_env, got " + env_el.type);
 }
 //rule 8
 void apply_conditional(cs_element cond_el)
@@ -91,8 +90,8 @@ void apply_conditional(cs_element cond_el)
    *  ...<cond<d<then>d<else>>   true...
    *  ...
   */
-  ASSERT(EL.type = r_TYPE, "apply_conditional expected r_TYPE, got " + EL.type);
-  cs_TYPE = boost::get<cs_TYPE>(EL.detail);
+  ASSERT(cond_el.type == r_cond, "apply_conditional expected r_cond, got " + cond_el.type);
+  cs_cond cond = boost::get<cs_cond>(cond_el.detail);
 }
 //rule 9
 void apply_tau(cs_element tau_el);
