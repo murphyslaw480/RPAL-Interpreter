@@ -19,8 +19,6 @@ class CSEM
         struct environment
         {
             int n;      //environment index
-            //env upon which this env is based
-            environment *base_env;  
             //(variable,value) substitutions
             std::vector<std::pair<CSL::cs_name,CSL::cs_element> > substitutions;
         };
@@ -32,10 +30,35 @@ class CSEM
         //list of all environments opened
         std::vector<environment> _env_list;
 
+        //expand a control struct onto _control
         void push_control_struct(CSL::cs_control_struct cs);
+        //process top element on _control
+        void step();
 
-        bool _debug_mode;
-        void debug(std::string msg);
+        //CSEM Rules
+        //rule 1
+        void stack_name(cs_element name_el);
+        //rule 2
+        void stack_lambda(cs_element lam_el);
+        //rule 3 (6 and 7 with optimized machine)
+        void apply_op(cs_element op_el);
+        //rule 4  (and 11, for n-ary function)
+        void apply_lambda_closure(cs_element lam_el);
+        //rule 5
+        void exit_env(cs_element env_el);
+        //rule 8
+        void apply_conditional(cs_element cond_el);
+        //rule 9
+        void apply_tau(cs_element tau_el);
+        //rule 10
+        void apply_tuple_index(cs_element gam_el);
+        //rule 10
+        void apply_tuple_index(cs_element gam_el);
+
+        //open env(new_inx) on top of env(base_idx)
+        void open_env(int new_idx, int base_idx);
+        //lookup element in current environment
+        void lookup(cs_element name_el);
 };
 
 #endif

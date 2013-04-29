@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     Flattener::PrintCS(boost::get<CSL::cs_control_struct>(cs.detail));
   }
 
-  CSEM csem(cs);
+  //CSEM csem(cs);
 
   return 0;
 }
