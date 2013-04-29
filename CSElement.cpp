@@ -184,13 +184,12 @@ namespace CSL
     return el;
   }
 
-  cs_element make_cond(vector<cs_element> truth_expression, 
-                       vector<cs_element> if_true, vector<cs_element> if_false)
+  cs_element make_cond(vector<cs_element> if_true, vector<cs_element> if_false)
+                       
   {
     cs_element el;
     el.type = r_cond;
     cs_cond detail;
-    detail.truth_expression.elements = truth_expression;
     cs_control_struct true_cs, false_cs;
     true_cs.elements = if_true;
     false_cs.elements = if_false;

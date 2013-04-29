@@ -132,14 +132,14 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
 
       case r_cond:
         {
-          vector<cs_element> cond_expression, true_clause, false_clause;
-          //generate conditional expression control structure
-          flatten(node->firstChild, cond_expression);
-          //generate control struct to place on stact if cond_expression is true
+          vector<cs_element> true_clause, false_clause;
+          //generate control struct to place on stack if cond_expression is true
           flatten(node->firstChild->nextSibling, true_clause);
-          //generate control struct to place on stact if cond_expression is false
+          //generate control struct to place on stack if cond_expression is false
           flatten(node->firstChild->nextSibling->nextSibling, false_clause);
-          list.push_back(CSL::make_cond(cond_expression, true_clause, false_clause));
+          list.push_back(CSL::make_cond(true_clause, false_clause));
+          //generate conditional expression control structure
+          flatten(node->firstChild, list);
         }
         return; //dont flatten children onto current list
 
@@ -238,8 +238,6 @@ void Flattener::print_cs(vector<cs_element> elements, int cs_num, int &cs_count)
     if (elements[i].type == r_cond)
     {
       cout << "(C" << ++cs_count <<"," << ++cs_count << "," << ++cs_count << ")";
-      sub_cs_list.push_back(
-          make_pair(boost::get<cs_cond>(elements[i].detail).truth_expression, cs_count-2));
       sub_cs_list.push_back(
           make_pair(boost::get<cs_cond>(elements[i].detail).clauses.first, cs_count-1));
       sub_cs_list.push_back(

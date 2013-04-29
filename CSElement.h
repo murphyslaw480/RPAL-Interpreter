@@ -95,9 +95,8 @@ namespace CSL
   //a conditional expression
   struct cs_cond
   {
-    //if truth_expression evaluates to true, expand clauses.first
+    //if top of stack evaluates to true, expand clauses.first
     //else expand clauses.second
-    cs_control_struct truth_expression;
     std::pair<cs_control_struct, cs_control_struct> clauses;
   };
 
@@ -138,8 +137,8 @@ namespace CSL
   cs_element make_lambda(std::vector<std::string> varnames, std::vector<CSL::cs_element> el_list, 
       int env);
 
-  cs_element make_cond(std::vector<cs_element> truth_expression, 
-                       std::vector<cs_element> if_true, std::vector<cs_element> if_false);
+  cs_element make_cond(std::vector<cs_element> if_true, std::vector<cs_element> if_false);
+                       
 }
 
 #endif

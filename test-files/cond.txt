@@ -1,0 +1,2 @@
+let f x = x eq 1 -> 2 | 1
+in f (f 3)

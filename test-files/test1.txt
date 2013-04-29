@@ -1,0 +1,2 @@
+let f n = n + 1 within g n = f(f(n)) in
+g 5
