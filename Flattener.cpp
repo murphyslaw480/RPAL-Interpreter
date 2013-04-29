@@ -16,9 +16,9 @@ const pair<string,element_type> Flattener::element_pattern[] =
   make_pair("^gamma$", r_gamma),                                               //gamma
   make_pair("^(not|neg)$", r_unop),                                            //rpal unary operator
   make_pair("^(aug|or|&|gr|ge|ls|le|eq|ne|\\+|-|\\*|/|\\*\\*)$", r_binop),     //rpal binary operator
-  make_pair("^<(true|false)>$", r_truth),                                        //rpal truth value
+  make_pair("^<(true|false)>$", r_truth),                                      //rpal truth value
   make_pair("^<nil>$", r_nil),                                                 //rpal nil
-  make_pair("^<dummy>$", r_dummy),                                               //rpal dummy
+  make_pair("^<dummy>$", r_dummy),                                             //rpal dummy
   make_pair("^<STR:'(.*)'>$", r_str),                                          //rpal string
   make_pair("^<INT:\\d+>$", r_int),                                            //rpal int
   make_pair("^<ID:(\\w+)>$", r_id),                                            //rpal identifier
