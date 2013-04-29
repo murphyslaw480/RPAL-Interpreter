@@ -1,7 +1,7 @@
-#define N_PATTERNS 12
+#define N_PATTERNS 13
 
 #include "Flattener.h"
-#include <cassert>
+#include "Debug.h"
 #include <utility>
 #include <iostream>
 #include <boost/variant/variant.hpp>
@@ -15,11 +15,11 @@ const pair<string,element_type> Flattener::element_pattern[] =
   make_pair("^lambda$", r_lambda),                                             //lambda
   make_pair("^gamma$", r_gamma),                                               //gamma
   make_pair("^(not|neg)$", r_unop),                                            //rpal unary operator
-  make_pair("^(or|&|gr|ge|ls|le|eq|ne|\\+|-|\\*|/|\\*\\*)$", r_binop),         //rpal binary operator
-  make_pair("^(true|false)$", r_truth),                                        //rpal truth value
-  make_pair("^nil$", r_nil),                                                   //rpal nil
-  make_pair("^dummy$", r_dummy),                                               //rpal dummy
-  make_pair("^<STR:'([\\w\\s]+)'>$", r_str),                                   //rpal string
+  make_pair("^(aug|or|&|gr|ge|ls|le|eq|ne|\\+|-|\\*|/|\\*\\*)$", r_binop),     //rpal binary operator
+  make_pair("^<(true|false)>$", r_truth),                                        //rpal truth value
+  make_pair("^<nil>$", r_nil),                                                 //rpal nil
+  make_pair("^<dummy>$", r_dummy),                                               //rpal dummy
+  make_pair("^<STR:'(.*)'>$", r_str),                                          //rpal string
   make_pair("^<INT:\\d+>$", r_int),                                            //rpal int
   make_pair("^<ID:(\\w+)>$", r_id),                                            //rpal identifier
   make_pair("^tau$", r_tau),                                                   //rpal tuple formation
@@ -49,7 +49,7 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
         et = element_pattern[i].second;
       }
     }
-    assert(match_found);
+    ASSERT(match_found, "Flattener could not match tree node: " + node->value);
 
     switch (et)
     {
@@ -64,6 +64,7 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
             while (var_node->nextSibling != NULL)
             {
               var_names.push_back(extract_id(var_node->value));
+              var_node = var_node->nextSibling;
             }
           }
           else
@@ -117,10 +118,17 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
           {
             n_tup_elements++;
             tup_el = tup_el->nextSibling;
+            ASSERT(n_tup_elements < 1000, "Tuple infinite loop limit reached. Tuple with over 1000 elements");
           }
           list.push_back(CSL::make_tau(n_tup_elements));
+          tup_el = node->firstChild;
+          while (tup_el != NULL)
+          {
+            flatten(tup_el, list);
+            tup_el = tup_el->nextSibling;
+          }
         }
-        break;
+        return; //children already flattened
 
       case r_cond:
         {
@@ -135,13 +143,28 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
         }
         return; //dont flatten children onto current list
 
-      default:
-        {
+      case r_ystar:
+        {//recursion
+          ASSERT(false, "Recursion not implemented");
+        }
+        break;
+
+      case r_gamma:
+      case r_nil:
+      case r_dummy:
+        { //gamma, nil, dummy have no special information
           cs_element generic_el;
           generic_el.type = et;
           list.push_back(generic_el);
         }
         break;
+
+      default:
+        {
+          ASSERT(false, "Flattener could not flatten type " + et);
+        }
+        break;
+
     }
 
     //if not lambda or cond, should reach this point (lambda and cond return early)
@@ -161,7 +184,8 @@ string Flattener::extract_id(string node_val)
   boost::regex e("^<ID:(\\w+)>$");
   boost::smatch what;
 
-  assert(boost::regex_match(node_val, what, e, boost::match_extra));
+  ASSERT(boost::regex_match(node_val, what, e, boost::match_extra),
+      "could not extract identifier from " + node_val);
 
   string s(what[1].first, what[1].second);
   return s;
@@ -172,17 +196,19 @@ int Flattener::extract_int(string node_val)
   boost::regex e("^<INT:(\\d+)>$");
   boost::smatch what;
 
-  assert(boost::regex_match(node_val, what, e, boost::match_extra));
+  ASSERT(boost::regex_match(node_val, what, e, boost::match_extra),
+      "could not extract int from " + node_val);
 
   return boost::lexical_cast<int>(what[1]);
 }
 
 string Flattener::extract_str(string node_val)
 {
-  boost::regex e("^<STR:'([\\w\\s]+)'>$");
+  boost::regex e("^<STR:'(.*)'>$");
   boost::smatch what;
 
-  assert(boost::regex_match(node_val, what, e, boost::match_extra));
+  ASSERT(boost::regex_match(node_val, what, e, boost::match_extra),
+      "could not extract str from " + node_val);
 
   string s(what[1].first, what[1].second);
   return s;
