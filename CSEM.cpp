@@ -94,11 +94,24 @@ void apply_conditional(cs_element cond_el)
   cs_cond cond = boost::get<cs_cond>(cond_el.detail);
 }
 //rule 9
-void apply_tau(cs_element tau_el);
+void apply_tau(cs_element tau_el)
+{
+  /*
+   *  ...t<n>     V_1 ... V_n ...
+   *  ...         (V_1 ... V_n) ...
+  */
+  ASSERT(tau_el.type = r_tau, "apply_tau expected r_tau, got " + tau_el.type);
+  cs_tau = boost::get<cs_tau>(tau_el.detail);
+}
 //rule 10
-void apply_tuple_index(cs_element gam_el);
-//rule 10
-void apply_tuple_index(cs_element gam_el);
+void apply_tuple_index(cs_element gam_el)
+{
+  /*
+   *  ...gamma      (V_1 ... V_n) I ...
+   *  ...           V_I           ...
+  */
+  ASSERT(gam_el.type = r_gamma, "apply_tuple_index expected r_gamma, got " + gam_el.type);
+}
 
 //open env(new_inx) on top of env(base_idx)
 void open_env(int new_idx, int base_idx);
