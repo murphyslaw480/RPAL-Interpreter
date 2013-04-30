@@ -56,7 +56,7 @@ namespace CSL
           output << (boost::get<cs_lambda>(el.detail).vars[i]).name << ", ";
         }
         output << (boost::get<cs_lambda>(el.detail).vars[i]).name;
-        output << ") env= " << boost::get<cs_lambda>(el.detail).env << ">";
+        output << ") env= " << boost::get<cs_lambda>(el.detail).env.n << ">";
         break;
       case r_tuple:
         output << "(";
@@ -96,6 +96,16 @@ namespace CSL
   {
     cs_truth detail;
     detail.val = (truth_str.compare("true") == 0);
+    cs_element el;
+    el.type = r_truth;
+    el.detail = detail;
+    return el;
+  }
+
+  cs_element make_truth(bool truthval)
+  {
+    cs_truth detail;
+    detail.val = truthval;
     cs_element el;
     el.type = r_truth;
     el.detail = detail;
@@ -167,7 +177,7 @@ namespace CSL
     return el;
   }
 
-  cs_element make_lambda(vector<string> varnames, vector<cs_element> el_list, int env)
+  cs_element make_lambda(vector<string> varnames, vector<cs_element> el_list)
   {
     cs_element el;
     el.type = r_lambda;
@@ -179,13 +189,19 @@ namespace CSL
       detail.vars.push_back(name);
     }
     detail.control_struct.elements = el_list;
-    detail.env = env;
     el.detail = detail;
     return el;
   }
 
+  cs_element make_lambda_with_env(cs_element lam_el, environment env)
+  {
+    cs_lambda lam = boost::get<cs_lambda>(lam_el.detail);
+    lam.env = env;
+    lam_el.detail = lam;
+    return lam_el;
+  }
+
   cs_element make_cond(vector<cs_element> if_true, vector<cs_element> if_false)
-                       
   {
     cs_element el;
     el.type = r_cond;
@@ -198,7 +214,7 @@ namespace CSL
     return el;
   }
 
-  cs_element make_env()
+  cs_element make_env_marker(int idx)
   {
     cs_element el;
     el.type = r_env;

@@ -74,8 +74,7 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
           //create control structure for lambda
           vector<cs_element> cs;
           flatten(node->firstChild->nextSibling, cs);
-          //-1 for no env yet (not opened)
-          list.push_back(CSL::make_lambda(var_names, cs, -1));
+          list.push_back(CSL::make_lambda(var_names, cs));
         }
         return; //dont flatten children onto current cs
 

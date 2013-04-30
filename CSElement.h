@@ -9,7 +9,7 @@
 #include <boost/variant/get.hpp>
 
 namespace CSL
-{//Control Stact eLement
+{//Control Stact element
 
   //CSEM element types
   enum element_type
@@ -35,6 +35,13 @@ namespace CSL
 
   //forward definition
   struct cs_element;
+
+  struct environment
+  {
+    int n;      //environment index
+    //(variable,value) substitutions
+    std::vector<std::pair<std::string,CSL::cs_element> > substitutions;
+  };
 
   //a name (variable)
   struct cs_name
@@ -88,7 +95,7 @@ namespace CSL
   struct cs_lambda
   {
     std::vector<cs_name> vars;
-    int env;    //activation environment
+    environment env;    //activation environment
     cs_control_struct control_struct;
   };
 
@@ -119,6 +126,7 @@ namespace CSL
   cs_element make_str(std::string s);
 
   cs_element make_truth(std::string truth_str);
+  cs_element make_truth(bool truthval);
 
   cs_element make_dummy();
 
@@ -134,12 +142,13 @@ namespace CSL
 
   cs_element make_control_struct(std::vector<CSL::cs_element> element_list);
 
-  cs_element make_lambda(std::vector<std::string> varnames, std::vector<CSL::cs_element> el_list, 
-      int env);
+  cs_element make_lambda(std::vector<std::string> varnames, std::vector<CSL::cs_element> el_list);
+  void set_lambda_env(cs_element lam_el, environment env);
 
   cs_element make_cond(std::vector<cs_element> if_true, std::vector<cs_element> if_false);
                        
-  cs_element make_env();
+  cs_element make_env_marker(int idx);
+  
 }
 
 #endif

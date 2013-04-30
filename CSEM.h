@@ -16,19 +16,12 @@ class CSEM
         CSEM(CSL::cs_element top_cs);
 
     private:
-        struct environment
-        {
-            int n;      //environment index
-            //(variable,value) substitutions
-            std::vector<std::pair<CSL::cs_name,CSL::cs_element> > substitutions;
-        };
 
         std::stack<CSL::cs_element> _control;
         std::stack<CSL::cs_element> _stack;
-        //stack of active environments
-        std::stack<environment> _env_stack;
-        //list of all environments opened
-        std::vector<environment> _env_list;
+        //stack of environments. _env_stack.top() gives active environment
+        std::stack<CSL::environment> _env_stack;
+        int _env_idx; //number of environments opened
 
         //expand a control struct onto _control
         void push_control_struct(CSL::cs_control_struct cs);
@@ -56,7 +49,7 @@ class CSEM
         //open env(new_inx) on top of env(base_idx)
         void open_env(int new_idx, int base_idx);
         //lookup element in current environment
-        void lookup(CSL::cs_element name_el);
+        CSL::cs_element lookup(CSL::cs_element name_el);
 };
 
 #endif
