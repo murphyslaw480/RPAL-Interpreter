@@ -34,10 +34,10 @@ namespace LIB_RPAL
     cs_element result;
     if (op_str.compare("aug") == 0)
     {
-      if (rand2.type == r_tuple)
+      if (rand1.type == r_tuple)
       {
-        vector<cs_element> tup_vals = boost::get<cs_tuple>(rand2.detail).elements;
-        tup_vals.insert(tup_vals.begin(), rand1);
+        vector<cs_element> tup_vals = boost::get<cs_tuple>(rand1.detail).elements;
+        tup_vals.push_back(rand2);
         return CSL::make_tuple(tup_vals);
       }
       else
