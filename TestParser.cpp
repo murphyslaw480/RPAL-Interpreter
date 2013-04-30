@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <string>
 #include <string.h>
 #include <boost/tokenizer.hpp>
@@ -15,7 +16,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  bool printAst, list, debug, tokens, build, stack, std_ast, print_cs;
+  bool printAst, list, debug, tokens, build, stack, std_ast, print_cs, interactive;
   char* filename;
 
   printAst = false;
@@ -26,6 +27,7 @@ int main(int argc, char** argv)
   stack = false;
   std_ast = false;
   print_cs = false;
+  interactive = false;
 
   for (int i = 1 ; i <= argc - 1; i++)
   {
@@ -47,6 +49,8 @@ int main(int argc, char** argv)
       std_ast = true;
     else if (strcmp(argv[i], "-controlstructs") == 0 || strcmp(argv[i], "-cs") == 0)
       print_cs = true;
+    else if (strcmp(argv[i], "--interactive") == 0 || strcmp(argv[i], "-i") == 0)
+      interactive = true;
   } 
 
   RpalScanner sc(filename, list);
@@ -100,7 +104,21 @@ int main(int argc, char** argv)
   }
 
   CSEM csem(cs);
-  csem.Run();
+  if (interactive)
+  {
+    while (!csem.Done)
+    {
+      getchar();
+      csem.Step();
+      csem.PrintControl();
+      csem.PrintStack();
+      cout << "\n";
+    }
+  }
+  else
+  {
+    csem.Run();
+  }
 
   return 0;
 }

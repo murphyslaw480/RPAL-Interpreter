@@ -11,6 +11,7 @@ using namespace CSL;
 
 CSEM::CSEM(cs_element top_cs)
 {
+    Done = false;
     //push enclosing environment markers
     _control.push(CSL::make_env_marker(0));
     _stack.push(CSL::make_env_marker(0));
@@ -25,7 +26,7 @@ void CSEM::Run()
 {
   while (!_control.empty())
   {
-    step();
+    Step();
   }
 }
 
@@ -38,7 +39,7 @@ void CSEM::push_control_struct(cs_control_struct cs)
 }
 
 //process top element on _control
-void CSEM::step()
+void CSEM::Step()
 {
   //pop top control element
   cs_element el = _control.top();
@@ -79,9 +80,16 @@ void CSEM::step()
     case r_tau:
       apply_tau(el);
       break;
+    case r_int:
+    case r_truth:
+    case r_str:
+      _stack.push(el);
+      break;
     default:
+      cout << "Top of control: " << el;
       ASSERT(false, "CSEM could not step(). Element type on top of control:" + el.type);
   }
+  Done = _control.empty();
 }
 
 //CSEM Rules
@@ -100,7 +108,7 @@ void CSEM::stack_lambda(cs_element lam_el)
   /*  ...lam<x,k>     ...
    *  ...             lam<x,k,c>    Where c = current_env index
    */
-  ASSERT(lam_el.type == r_id, "stack_lambda expected r_lambda, got " + lam_el.type);
+  ASSERT(lam_el.type == r_lambda, "stack_lambda expected r_lambda, got " + lam_el.type);
   cs_lambda lambda = boost::get<cs_lambda>(lam_el.detail);
   _stack.push(CSL::make_lambda_with_env(lam_el, _env_stack.top()));
 }
@@ -252,9 +260,46 @@ cs_element CSEM::lookup(cs_element name_el)
 void CSEM::apply_function(CSL::cs_element fn_name_el)
 {
   string fn_name = boost::get<cs_name>(fn_name_el.detail).name;
-  if (fn_name.compare("Print"))
+  if (fn_name.compare("Print") == 0)
   {
+    _stack.pop();
     cout << _stack.top();
     _stack.pop();
   }
+}
+
+void CSEM::PrintControl()
+{
+  cout << "C| ";
+  stack<cs_element> temp;
+  while (!_control.empty())
+  {
+    temp.push(_control.top());
+    _control.pop();
+  }
+  while (!temp.empty())
+  {
+    cout << temp.top();
+    _control.push(temp.top());
+    temp.pop();
+  }
+  cout << "\n";
+}
+
+void CSEM::PrintStack()
+{
+  cout << "S| ";
+  stack<cs_element> temp;
+  while (!_stack.empty())
+  {
+    temp.push(_stack.top());
+    _stack.pop();
+  }
+  while (!temp.empty())
+  {
+    cout << temp.top();
+    _stack.push(temp.top());
+    temp.pop();
+  }
+  cout << "\n";
 }

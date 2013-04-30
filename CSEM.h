@@ -15,6 +15,12 @@ class CSEM
     public:
         CSEM(CSL::cs_element top_cs);
         void Run();
+        //process top element on _control
+        void Step();
+        void PrintControl();
+        void PrintStack();
+
+        bool Done;
 
     private:
 
@@ -26,8 +32,6 @@ class CSEM
 
         //expand a control struct onto _control
         void push_control_struct(CSL::cs_control_struct cs);
-        //process top element on _control
-        void step();
 
         //CSEM Rules
         //rule 1
