@@ -155,11 +155,22 @@ void CSEM::apply_lambda_closure(cs_element gam_el)
   environment closure_env = boost::get<cs_lambda>(lam_el.detail).env;
   closure_env.n = ++_env_idx;
   cs_control_struct cs = boost::get<cs_lambda>(lam_el.detail).control_struct;
-  for (int i = 0 ; i < names.size() ; i++)
-  {
+  if (names.size() == 1)
+  { //single var function
     ASSERT(!_stack.empty(), "Stack empty before lambda closure application finished");
-    closure_env.substitutions.push_back(make_pair<string,cs_element>(names[i].name, _stack.top()));
+    closure_env.substitutions.push_back(make_pair<string,cs_element>(names[0].name, _stack.top()));
     _stack.pop();
+  }
+  else
+  {
+    ASSERT(_stack.top().type == r_tuple, "n-ary function expected tuple on top of stack");
+    vector<cs_element> rand = boost::get<cs_tuple>(_stack.top().detail).elements;
+    _stack.pop();
+    for (int i = 0 ; i < names.size() ; i++)
+    {
+      ASSERT(!_stack.empty(), "Stack empty before lambda closure application finished");
+      closure_env.substitutions.push_back(make_pair<string,cs_element>(names[i].name, rand[i]));
+    }
   }
   _env_stack.push(closure_env);
   _control.push(CSL::make_env_marker(_env_idx));
@@ -355,7 +366,7 @@ void CSEM::apply_function(CSL::cs_element fn_name_el)
     ASSERT(_stack.top().type == r_str, "Cannot compute Stern of non-string");
     string s = boost::get<cs_str>(_stack.top().detail).val;
     _stack.pop();   //pop element to compute Stem of
-    _stack.push(CSL::make_str(s.substr(1,s.length()-2)));
+    _stack.push(CSL::make_str(s.substr(1,s.length()-1)));
   }
   else if (fn_name.compare("ItoS") == 0)
   { //int to string

@@ -61,7 +61,7 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
           if (var_node->value == ",")
           { //multiple var function
             var_node = var_node->firstChild;
-            while (var_node->nextSibling != NULL)
+            while (var_node != NULL)
             {
               var_names.push_back(extract_id(var_node->value));
               var_node = var_node->nextSibling;

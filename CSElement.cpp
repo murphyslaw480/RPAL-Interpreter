@@ -1,5 +1,6 @@
 #include "CSElement.h"
 #include <cassert>
+#include <boost/algorithm/string.hpp>
 using namespace std;
 
 namespace CSL
@@ -84,6 +85,9 @@ namespace CSL
 
   cs_element make_str(string s)
   {
+    //replace escaped sequences
+    boost::replace_all(s, "\\t", "\t");
+    boost::replace_all(s, "\\n", "\n");
     cs_str detail;
     detail.val = s;
     cs_element el;
