@@ -108,12 +108,17 @@ int main(int argc, char** argv)
   {
     while (!csem.Done)
     {
-      getchar();
-      csem.Step();
       csem.PrintControl();
+      cout << "\t||\t";
       csem.PrintStack();
       cout << "\n";
+      getchar();
+      csem.Step();
     }
+    csem.PrintControl();
+    cout << "\t||\t";
+    csem.PrintStack();
+    cout << "\n";
   }
   else
   {

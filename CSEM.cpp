@@ -186,6 +186,7 @@ void CSEM::exit_env(cs_element env_el)
     _stack.push(values.top());
     values.pop();
   }
+  _env_stack.pop();
 }
 //rule 8
 void CSEM::apply_conditional(cs_element cond_el)
@@ -205,6 +206,8 @@ void CSEM::apply_conditional(cs_element cond_el)
   {
     push_control_struct(cond.clauses.second);
   }
+  //pop bool from stack
+  _stack.pop();
 }
 //rule 9
 void CSEM::apply_tau(cs_element tau_el)
@@ -283,23 +286,21 @@ void CSEM::PrintControl()
     _control.push(temp.top());
     temp.pop();
   }
-  cout << "\n";
 }
 
 void CSEM::PrintStack()
 {
-  cout << "S| ";
   stack<cs_element> temp;
   while (!_stack.empty())
   {
+    cout << _stack.top();
     temp.push(_stack.top());
     _stack.pop();
   }
   while (!temp.empty())
   {
-    cout << temp.top();
     _stack.push(temp.top());
     temp.pop();
   }
-  cout << "\n";
+  cout << " |S";
 }
