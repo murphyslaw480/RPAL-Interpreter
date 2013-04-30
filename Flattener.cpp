@@ -27,11 +27,14 @@ const pair<string,element_type> Flattener::element_pattern[] =
   make_pair("^<Y\\*>$", r_ystar)                                               //ystar
 };
 
+static int cs_idx;
+
 cs_element Flattener::Flatten(Fcns *st)
 {
+  cs_idx = 0;
   vector<cs_element> element_list;
   flatten(st, element_list);
-  return CSL::make_control_struct(element_list);
+  return CSL::make_control_struct(element_list, 0);
 }
 
 void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
@@ -73,8 +76,9 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
           }
           //create control structure for lambda
           vector<cs_element> cs;
+          int current_idx = ++cs_idx;
           flatten(node->firstChild->nextSibling, cs);
-          list.push_back(CSL::make_lambda(var_names, cs));
+          list.push_back(CSL::make_lambda(var_names, cs, current_idx));
         }
         return; //dont flatten children onto current cs
 
@@ -133,10 +137,12 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
         {
           vector<cs_element> true_clause, false_clause;
           //generate control struct to place on stack if cond_expression is true
+          int true_idx = ++cs_idx;
           flatten(node->firstChild->nextSibling, true_clause);
           //generate control struct to place on stack if cond_expression is false
+          int false_idx = ++cs_idx;
           flatten(node->firstChild->nextSibling->nextSibling, false_clause);
-          list.push_back(CSL::make_cond(true_clause, false_clause));
+          list.push_back(CSL::make_cond(true_clause, false_clause, true_idx, false_idx));
           //generate conditional expression control structure
           flatten(node->firstChild, list);
         }

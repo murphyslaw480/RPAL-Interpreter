@@ -89,6 +89,7 @@ namespace CSL
   //a control struct (delta in notes)
   struct cs_control_struct
   {
+    int idx;
     std::vector<cs_element> elements;
   };
 
@@ -147,12 +148,13 @@ namespace CSL
    
   cs_element make_tuple(std::vector<cs_element> values);
 
-  cs_element make_control_struct(std::vector<CSL::cs_element> element_list);
+  cs_element make_control_struct(std::vector<CSL::cs_element> element_list, int idx);
 
-  cs_element make_lambda(std::vector<std::string> varnames, std::vector<CSL::cs_element> el_list);
+  cs_element make_lambda(std::vector<std::string> varnames, std::vector<CSL::cs_element> el_list, 
+      int idx);
   cs_element make_lambda_with_env(CSL::cs_element lam_el, environment env);
 
-  cs_element make_cond(std::vector<cs_element> if_true, std::vector<cs_element> if_false);
+  cs_element make_cond(std::vector<cs_element> if_true, std::vector<cs_element> if_false, int true_idx, int false_idx);
                        
   cs_element make_env_marker(int idx);
   

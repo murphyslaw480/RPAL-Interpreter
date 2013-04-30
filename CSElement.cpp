@@ -56,14 +56,14 @@ namespace CSL
         output << "<OPERATOR: " << boost::get<cs_op>(el.detail).op << ">";
         break;
       case r_lambda:
-        output << "<lambda(" ;
+        output << "[lambda closure: ";
         int i;
-        for (i = 0 ; i < boost::get<cs_lambda>(el.detail).vars.size() - 1 ; i++ )
-        {
-          output << (boost::get<cs_lambda>(el.detail).vars[i]).name << ", ";
-        }
         output << (boost::get<cs_lambda>(el.detail).vars[i]).name;
-        output << ")" << boost::get<cs_lambda>(el.detail).env.n << ">";
+        for (i = 1 ; i < boost::get<cs_lambda>(el.detail).vars.size() - 1 ; i++ )
+        {
+          output << ", " << (boost::get<cs_lambda>(el.detail).vars[i]).name ;
+        }
+        output << ": " << boost::get<cs_lambda>(el.detail).control_struct.idx << "]";
         break;
       case r_tuple:
         output << "(";
@@ -177,17 +177,18 @@ namespace CSL
     return el;
   }
 
-  cs_element make_control_struct(std::vector<CSL::cs_element> element_list)
+  cs_element make_control_struct(std::vector<CSL::cs_element> element_list, int idx)
   {
     cs_element el;
     el.type = r_cs;
     cs_control_struct detail;
     detail.elements = element_list;
+    detail.idx = idx;
     el.detail = detail;
     return el;
   }
 
-  cs_element make_lambda(vector<string> varnames, vector<cs_element> el_list)
+  cs_element make_lambda(vector<string> varnames, vector<cs_element> el_list, int idx)
   {
     cs_element el;
     el.type = r_lambda;
@@ -199,6 +200,7 @@ namespace CSL
       detail.vars.push_back(name);
     }
     detail.control_struct.elements = el_list;
+    detail.control_struct.idx = idx;
     environment null_env;
     null_env.n = 0;
     detail.env = null_env;
@@ -214,14 +216,17 @@ namespace CSL
     return lam_el;
   }
 
-  cs_element make_cond(vector<cs_element> if_true, vector<cs_element> if_false)
+  cs_element make_cond(vector<cs_element> if_true, vector<cs_element> if_false, 
+      int true_idx, int false_idx)
   {
     cs_element el;
     el.type = r_cond;
     cs_cond detail;
     cs_control_struct true_cs, false_cs;
     true_cs.elements = if_true;
+    true_cs.idx = true_idx;
     false_cs.elements = if_false;
+    true_cs.idx = false_idx;
     detail.clauses = std::make_pair<cs_control_struct,cs_control_struct>(true_cs, false_cs);
     el.detail = detail;
     return el;

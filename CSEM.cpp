@@ -436,6 +436,6 @@ void CSEM::PrintCond()
 {
   std::pair<cs_control_struct, cs_control_struct> clauses 
     = boost::get<cs_cond>(_control.top().detail).clauses;
-  cout << "IF_TRUE: " << CSL::make_control_struct(clauses.first.elements) << "\n";
-  cout << "IF_FALSE: " << CSL::make_control_struct(clauses.second.elements) << "\n";
+  cout << "IF_TRUE: " << CSL::make_control_struct(clauses.first.elements, clauses.first.idx) << "\n";
+  cout << "IF_FALSE: " << CSL::make_control_struct(clauses.second.elements, clauses.first.idx) << "\n";
 }
