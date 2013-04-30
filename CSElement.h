@@ -55,6 +55,7 @@ namespace CSL
     std::string val;
   };
 
+
   //An rpal integer
   struct cs_int
   {
@@ -143,7 +144,7 @@ namespace CSL
   cs_element make_control_struct(std::vector<CSL::cs_element> element_list);
 
   cs_element make_lambda(std::vector<std::string> varnames, std::vector<CSL::cs_element> el_list);
-  void set_lambda_env(cs_element lam_el, environment env);
+  cs_element make_lambda_with_env(CSL::cs_element lam_el, environment env);
 
   cs_element make_cond(std::vector<cs_element> if_true, std::vector<cs_element> if_false);
                        

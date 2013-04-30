@@ -14,6 +14,7 @@ class CSEM
 {
     public:
         CSEM(CSL::cs_element top_cs);
+        void Run();
 
     private:
 
@@ -45,6 +46,8 @@ class CSEM
         void apply_tau(CSL::cs_element tau_el);
         //rule 10
         void apply_tuple_index(CSL::cs_element gam_el);
+        //special functions
+        void apply_function(CSL::cs_element fn_name_el);
 
         //open env(new_inx) on top of env(base_idx)
         void open_env(int new_idx, int base_idx);

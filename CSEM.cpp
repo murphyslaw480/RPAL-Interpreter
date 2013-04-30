@@ -4,6 +4,7 @@
 #include <iostream>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
+#include <iostream>
 
 using namespace std;
 using namespace CSL;
@@ -18,6 +19,14 @@ CSEM::CSEM(cs_element top_cs)
     environment pe; //primitive environment
     _env_stack.push(pe);
     _env_idx = 0;
+}
+
+void CSEM::Run()
+{
+  while (!_control.empty())
+  {
+    step();
+  }
 }
 
 void CSEM::push_control_struct(cs_control_struct cs)
@@ -55,9 +64,10 @@ void CSEM::step()
       {
         apply_tuple_index(el);
       }
-      else
+      else if (_stack.top().type == r_id)
       {
-        //TODO: handle special functions
+        //special function handling
+        apply_function(_stack.top());
       }
       break;
     case r_env:
@@ -92,6 +102,7 @@ void CSEM::stack_lambda(cs_element lam_el)
    */
   ASSERT(lam_el.type == r_id, "stack_lambda expected r_lambda, got " + lam_el.type);
   cs_lambda lambda = boost::get<cs_lambda>(lam_el.detail);
+  _stack.push(CSL::make_lambda_with_env(lam_el, _env_stack.top()));
 }
 //rule 3 (6 and 7 with optimized machine)
 void CSEM::apply_op(cs_element op_el)
@@ -102,24 +113,48 @@ void CSEM::apply_op(cs_element op_el)
   */
   ASSERT(op_el.type == r_unop || op_el.type == r_binop, "apply_op expected r_op, got " + op_el.type);
 
-  cs_op op = boost::get<cs_op>(op_el.detail);
   if (op_el.type == r_unop)
   {
+    cs_element rand = _stack.top();
+    _stack.pop();
+    _stack.push(LIB_RPAL::unop(op_el, rand));
   }
   else
   {
+    cs_element rand1 = _stack.top();
+    _stack.pop();
+    cs_element rand2 = _stack.top();
+    _stack.pop();
+    _stack.push(LIB_RPAL::binop(op_el, rand1, rand2));
   }
   
 }
 //rule 4  (and 11, for n-ary function)
-void CSEM::apply_lambda_closure(cs_element lam_el)
+void CSEM::apply_lambda_closure(cs_element gam_el)
 {
   /*
    *  ...gamma      lam<x,k,c> Rand
    *  ...e<n>d<k>   e<n>
   */
-  ASSERT(lam_el.type == r_lambda, "apply_lambda_closure expected r_lambda, got " + lam_el.type);
-  cs_lambda lam = boost::get<cs_lambda>(lam_el.detail);
+  ASSERT(gam_el.type == r_gamma, "apply_lambda_closure expected r_gamma, got " + gam_el.type);
+  cs_element lam_el = _stack.top();
+  _stack.pop();
+  ASSERT(lam_el.type == r_lambda, "apply_lambda_closure expects lambda on stack, got " + lam_el.type);
+  //create new env
+  vector<cs_name> names = boost::get<cs_lambda>(lam_el.detail).vars;
+  environment closure_env = boost::get<cs_lambda>(lam_el.detail).env;
+  closure_env.n = ++_env_idx;
+  cs_control_struct cs = boost::get<cs_lambda>(lam_el.detail).control_struct;
+  for (int i = 0 ; i < names.size() ; i++)
+  {
+    ASSERT(!_stack.empty(), "Stack empty before lambda closure application finished");
+    closure_env.substitutions.push_back(make_pair<string,cs_element>(names[i].name, _stack.top()));
+    _stack.pop();
+  }
+  _env_stack.push(closure_env);
+  _control.push(CSL::make_env_marker(_env_idx));
+  push_control_struct(cs);
+  _stack.push(CSL::make_env_marker(_env_idx));
 }
 //rule 5
 void CSEM::exit_env(cs_element env_el)
@@ -129,6 +164,20 @@ void CSEM::exit_env(cs_element env_el)
    *  ...         value...
   */
   ASSERT(env_el.type == r_env, "exit_env expected r_env, got " + env_el.type);
+  //TODO: check if env index matches
+  stack<cs_element> values;
+  while (_stack.top().type != r_env)
+  {
+    ASSERT(!_stack.empty(), "Stack empty before env exit finished");
+    values.push(_stack.top());
+    _stack.pop();
+  }
+  _stack.pop();   //pop env close marker
+  while (!values.empty())
+  {
+    _stack.push(values.top());
+    values.pop();
+  }
 }
 //rule 8
 void CSEM::apply_conditional(cs_element cond_el)
@@ -139,6 +188,15 @@ void CSEM::apply_conditional(cs_element cond_el)
   */
   ASSERT(cond_el.type == r_cond, "apply_conditional expected r_cond, got " + cond_el.type);
   cs_cond cond = boost::get<cs_cond>(cond_el.detail);
+  ASSERT(_stack.top().type == r_truth, "apply_conditional didn't find truth on stack");
+  if (boost::get<cs_truth>(_stack.top().detail).val)
+  { //true on stack
+    push_control_struct(cond.clauses.first);
+  }
+  else
+  {
+    push_control_struct(cond.clauses.second);
+  }
 }
 //rule 9
 void CSEM::apply_tau(cs_element tau_el)
@@ -149,6 +207,14 @@ void CSEM::apply_tau(cs_element tau_el)
   */
   ASSERT(tau_el.type == r_tau, "apply_tau expected r_tau, got " + tau_el.type);
   cs_tau tau = boost::get<cs_tau>(tau_el.detail);
+  vector<cs_element> values;
+  for (int i = 0 ; i < tau.n ; i++)
+  {
+    ASSERT(!_stack.empty(), "Stack empty before tau finished");
+    values.push_back(_stack.top());
+    _stack.pop();
+  }
+  _stack.push(CSL::make_tuple(values));
 }
 //rule 10
 void CSEM::apply_tuple_index(cs_element gam_el)
@@ -158,6 +224,12 @@ void CSEM::apply_tuple_index(cs_element gam_el)
    *  ...           V_I           ...
   */
   ASSERT(gam_el.type == r_gamma, "apply_tuple_index expected r_gamma, got " + gam_el.type);
+  cs_element tup_el = _stack.top();
+  _stack.pop();
+  cs_element idx_el = _stack.top();
+  _stack.pop();
+  ASSERT(idx_el.type == r_int, "apply tuple index expected int index, got " + idx_el.type);
+  _stack.push(boost::get<cs_tuple>(tup_el.detail).elements[boost::get<cs_int>(idx_el.detail).val]);
 }
 
 //lookup element in current environment
@@ -177,4 +249,12 @@ cs_element CSEM::lookup(cs_element name_el)
   return name_el;
 }
 
-
+void CSEM::apply_function(CSL::cs_element fn_name_el)
+{
+  string fn_name = boost::get<cs_name>(fn_name_el.detail).name;
+  if (fn_name.compare("Print"))
+  {
+    cout << _stack.top();
+    _stack.pop();
+  }
+}

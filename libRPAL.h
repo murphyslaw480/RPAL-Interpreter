@@ -1,5 +1,5 @@
-#ifndef LIB_RPAL
-#define LIB_RPAL
+#ifndef LIBRPAL
+#define LIBRPAL
 #include "CSElement.h"
 #include <string>
 namespace LIB_RPAL
