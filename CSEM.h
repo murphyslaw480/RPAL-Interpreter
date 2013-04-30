@@ -20,6 +20,7 @@ class CSEM
         void PrintControl();
         void PrintStack();
         void PrintEnv();
+        void PrintCond();
 
         bool Done;
 

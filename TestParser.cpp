@@ -110,10 +110,14 @@ int main(int argc, char** argv)
     char in;
     while (!csem.Done)
     {
-      in = getchar();
+      scanf("%c", &in);
       if (in == 'e')
       {
         csem.PrintEnv();
+      }
+      else if (in == 'c')
+      {
+        csem.PrintCond();
       }
       else
       {

@@ -385,6 +385,10 @@ void CSEM::apply_function(CSL::cs_element fn_name_el)
 
 void CSEM::PrintControl()
 {
+  if (_control.top().type == r_cond)
+  {
+    PrintCond();
+  }
   cout << "C| ";
   stack<cs_element> temp;
   while (!_control.empty())
@@ -422,8 +426,16 @@ void CSEM::PrintEnv()
   cout << "ENV " << _env_stack.top().n << ":";
   for (int i = 0 ; i < _env_stack.top().substitutions.size() ; i++)
   {
-    cout << _env_stack.top().substitutions[i].first << " / "
-      << _env_stack.top().substitutions[i].second << " , ";
+    cout << _env_stack.top().substitutions[i].second << " / "
+      << _env_stack.top().substitutions[i].first << " , ";
   }
   cout << "\n";
+}
+
+void CSEM::PrintCond()
+{
+  std::pair<cs_control_struct, cs_control_struct> clauses 
+    = boost::get<cs_cond>(_control.top().detail).clauses;
+  cout << "IF_TRUE: " << CSL::make_control_struct(clauses.first.elements) << "\n";
+  cout << "IF_FALSE: " << CSL::make_control_struct(clauses.second.elements) << "\n";
 }

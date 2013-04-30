@@ -31,8 +31,14 @@ namespace CSL
         output << "<e" << boost::get<cs_env>(el.detail).n << ">";
         break;
       case r_cs:
-        output << "<d>";
-        break;
+        {
+          vector<cs_element> elements = boost::get<cs_control_struct>(el.detail).elements;
+          for (int i = 0 ; i < elements.size() ; i++)
+          {
+            cout << elements[i];
+          }
+          break;
+        }
       case r_tau:
         output << "<tau" << boost::get<cs_tau>(el.detail).n << ">";
         break;
@@ -99,7 +105,7 @@ namespace CSL
   cs_element make_truth(string truth_str)
   {
     cs_truth detail;
-    detail.val = (truth_str.compare("true") == 0);
+    detail.val = (truth_str.compare("<true>") == 0);
     cs_element el;
     el.type = r_truth;
     el.detail = detail;
