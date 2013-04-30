@@ -27,7 +27,7 @@ namespace CSL
         output << "dummy";
         break;
       case r_env:
-        output << "<e>";
+        output << "<e" << boost::get<cs_env>(el.detail).n << ">";
         break;
       case r_cs:
         output << "<d>";
@@ -189,6 +189,9 @@ namespace CSL
       detail.vars.push_back(name);
     }
     detail.control_struct.elements = el_list;
+    environment null_env;
+    null_env.n = 0;
+    detail.env = null_env;
     el.detail = detail;
     return el;
   }
@@ -218,6 +221,9 @@ namespace CSL
   {
     cs_element el;
     el.type = r_env;
+    cs_env detail;
+    detail.n = idx;
+    el.detail = detail;
     return el;
   }
 

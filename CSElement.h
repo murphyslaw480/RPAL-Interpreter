@@ -108,6 +108,12 @@ namespace CSL
     std::pair<cs_control_struct, cs_control_struct> clauses;
   };
 
+  //an environment marker
+  struct cs_env
+  {
+    int n;
+  };
+
   //generic Control Stack element structure
   //anything that can be place on the control or stack is an instance of this
   struct cs_element
@@ -115,7 +121,7 @@ namespace CSL
     element_type type;
     //boost::variant<cs_control_struct, cs_lambda, cs_name, cs_str, cs_int, cs_op, cs_truth, cs_tuple> 
     boost::variant<cs_name, cs_str, cs_int, cs_op, cs_truth, cs_tau, cs_tuple, 
-                   cs_control_struct, cs_lambda, cs_cond> detail;
+                   cs_control_struct, cs_lambda, cs_cond, cs_env> detail;
   };
 
   std::ostream& operator<<(std::ostream& output, const cs_element& el);

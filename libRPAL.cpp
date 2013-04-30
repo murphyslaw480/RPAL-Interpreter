@@ -48,7 +48,7 @@ namespace LIB_RPAL
         return CSL::make_tuple(tup_vals);
       }
     }
-    if (op_str.compare("and") == 0 || op_str.compare("or") == 0)
+    else if (op_str.compare("and") == 0 || op_str.compare("or") == 0)
     {
       ASSERT(rand1.type == r_truth, "and expected truthval, got " + rand1.type);
       ASSERT(rand2.type == r_truth, "and expected truthval, got " + rand2.type);
@@ -63,10 +63,32 @@ namespace LIB_RPAL
         return CSL::make_truth(val1 || val2);
       }
     }
+    else if (op_str.compare("ne") == 0 || op_str.compare("eq") == 0)
+    { //multi-type comparison
+      element_type t = rand1.type;
+      ASSERT(t == rand2.type, ("Non-matching types for" + op_str));
+      bool r;
+      switch (t)
+      {
+        case r_int:
+          r = (boost::get<cs_int>(rand1.detail).val == boost::get<cs_int>(rand2.detail).val);
+          break;
+        case r_str:
+          r = (boost::get<cs_str>(rand1.detail).val.compare(boost::get<cs_str>(rand2.detail).val) == 0);
+          break;
+        case r_truth:
+          r = (boost::get<cs_truth>(rand1.detail).val == boost::get<cs_truth>(rand2.detail).val);
+          break;
+        default:
+          ASSERT(false, ("Invalid type for op " + op_str));
+      }
+      return CSL::make_truth(op_str.compare("eq") == 0 ? r : !r);
+    }
+
     else
     { //anything else operates on ints
-      ASSERT(rand1.type == r_int, "non-aug binop expected int, got " + rand1.type);
-      ASSERT(rand2.type == r_int, "non-aug binop expected int, got " + rand2.type);
+      ASSERT(rand1.type == r_int, ("numeric binop " + op_str + "expected int"));
+      ASSERT(rand2.type == r_int, ("numeric binop " + op_str + "expected int"));
       int val1 = boost::get<cs_int>(rand1.detail).val;
       int val2 = boost::get<cs_int>(rand2.detail).val;
       if (op_str.compare("+") == 0)
@@ -104,14 +126,6 @@ namespace LIB_RPAL
       else if (op_str.compare("le") == 0)
       {
         return CSL::make_truth(val1 <= val2);
-      }
-      else if (op_str.compare("ne") == 0)
-      {
-        return CSL::make_truth(val1 != val2);
-      }
-      else if (op_str.compare("eq") == 0)
-      {
-        return CSL::make_truth(val1 == val2);
       }
       else
       {

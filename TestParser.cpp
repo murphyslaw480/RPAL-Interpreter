@@ -107,19 +107,23 @@ int main(int argc, char** argv)
   CSEM csem(cs);
   if (interactive)
   {
+    char in;
     while (!csem.Done)
     {
-      csem.PrintControl();
-      cout << "\t||\t";
-      csem.PrintStack();
-      cout << "\n";
-      getchar();
-      csem.Step();
+      in = getchar();
+      if (in == 'e')
+      {
+        csem.PrintEnv();
+      }
+      else
+      {
+        csem.PrintControl();
+        cout << "\t||\t";
+        csem.PrintStack();
+        cout << "\n";
+        csem.Step();
+      }
     }
-    csem.PrintControl();
-    cout << "\t||\t";
-    csem.PrintStack();
-    cout << "\n";
   }
   else
   {

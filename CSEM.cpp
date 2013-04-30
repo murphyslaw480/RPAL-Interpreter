@@ -4,6 +4,7 @@
 #include <iostream>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/get.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 
 using namespace std;
@@ -18,6 +19,7 @@ CSEM::CSEM(cs_element top_cs)
     //push all elements of top level control struct
     push_control_struct(boost::get<cs_control_struct>(top_cs.detail));
     environment pe; //primitive environment
+    pe.n = 0;
     _env_stack.push(pe);
     _env_idx = 0;
 }
@@ -146,8 +148,8 @@ void CSEM::apply_lambda_closure(cs_element gam_el)
   */
   ASSERT(gam_el.type == r_gamma, "apply_lambda_closure expected r_gamma, got " + gam_el.type);
   cs_element lam_el = _stack.top();
-  _stack.pop();
-  ASSERT(lam_el.type == r_lambda, "apply_lambda_closure expects lambda on stack, got " + lam_el.type);
+  _stack.pop();   //pop lambda
+  ASSERT(lam_el.type == r_lambda, ("apply_lambda_closure expects lambda on stack, got " + lam_el.type));
   //create new env
   vector<cs_name> names = boost::get<cs_lambda>(lam_el.detail).vars;
   environment closure_env = boost::get<cs_lambda>(lam_el.detail).env;
@@ -172,7 +174,7 @@ void CSEM::exit_env(cs_element env_el)
    *  ...         value...
   */
   ASSERT(env_el.type == r_env, "exit_env expected r_env, got " + env_el.type);
-  //TODO: check if env index matches
+  ASSERT(boost::get<cs_env>(env_el.detail).n == _env_stack.top().n, "Control Env marker idx doesn't match open env");
   stack<cs_element> values;
   while (_stack.top().type != r_env)
   {
@@ -180,6 +182,7 @@ void CSEM::exit_env(cs_element env_el)
     values.push(_stack.top());
     _stack.pop();
   }
+  ASSERT(boost::get<cs_env>(_stack.top().detail).n == _env_stack.top().n, "Stack Env marker idx doesn't match open env");
   _stack.pop();   //pop env close marker
   while (!values.empty())
   {
@@ -263,20 +266,109 @@ cs_element CSEM::lookup(cs_element name_el)
 void CSEM::apply_function(CSL::cs_element fn_name_el)
 {
   string fn_name = boost::get<cs_name>(fn_name_el.detail).name;
-  if (fn_name.compare("Print") == 0)
+  if (fn_name.compare("Print") == 0 || fn_name.compare("print") == 0)
   {
     _stack.pop();
     cout << _stack.top();
     _stack.pop();
   }
-  else if (fn_name.compare("Conc") == 0)
+  else if (fn_name.compare("Conc") == 0 || fn_name.compare("conc") == 0)
   {
     _stack.pop();   //pop Conc
+    ASSERT(_stack.top().type == r_str, "Cannot conc non-string");
     string s1 = boost::get<cs_str>(_stack.top().detail).val;
     _stack.pop();   //pop str1
+    ASSERT(_stack.top().type == r_str, "Cannot conc non-string");
     string s2 = boost::get<cs_str>(_stack.top().detail).val;
     _stack.pop();   //pop str2
     _stack.push(CSL::make_str(s1 + s2));
+  }
+  else if (fn_name.compare("Order") == 0)
+  {
+    _stack.pop();   //pop Conc
+    ASSERT(_stack.top().type == r_tuple, "Cannot compute order of non-tuple");
+    int tup_size = boost::get<cs_tuple>(_stack.top().detail).elements.size();
+    _stack.pop();   //pop tuple
+    _stack.push(CSL::make_int(tup_size));
+  }
+  //type checking methods
+  else if (fn_name.compare("Istuple") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_tuple));
+  }
+  else if (fn_name.compare("Isinteger") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_int));
+  }
+  else if (fn_name.compare("Isstring") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_str));
+  }
+  else if (fn_name.compare("Isdummy") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_dummy));
+  }
+  else if (fn_name.compare("Istruthvalue") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_truth));
+  }
+  else if (fn_name.compare("Isfunction") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_lambda || t == r_rec_lambda));
+  }
+  else if (fn_name.compare("Null") == 0)
+  {
+    _stack.pop();   //pop Istuple
+    element_type t = _stack.top().type;
+    _stack.pop();   //pop element to check
+    _stack.push(CSL::make_truth(t == r_nil));
+  }
+  else if (fn_name.compare("Stem") == 0)
+  {
+    _stack.pop();   //pop Stem
+    ASSERT(_stack.top().type == r_str, "Cannot compute Stem of non-string");
+    string s = boost::get<cs_str>(_stack.top().detail).val;
+    _stack.pop();   //pop element to compute Stem of
+    _stack.push(CSL::make_str("" + s.at(0)));
+  }
+  else if (fn_name.compare("Stern") == 0)
+  {
+    _stack.pop();   //pop Stern
+    ASSERT(_stack.top().type == r_str, "Cannot compute Stern of non-string");
+    string s = boost::get<cs_str>(_stack.top().detail).val;
+    _stack.pop();   //pop element to compute Stem of
+    _stack.push(CSL::make_str(s.substr(1,s.length()-2)));
+  }
+  else if (fn_name.compare("ItoS") == 0)
+  { //int to string
+    _stack.pop();   //pop ItoS
+    ASSERT(_stack.top().type == r_str, "Cannot compute ItoS of non-int");
+    int num = boost::get<cs_int>(_stack.top().detail).val;
+    _stack.pop();   //pop int
+    string s = boost::lexical_cast<string>(num);
+    _stack.push(CSL::make_str(s));
+  }
+  else
+  {
+    ASSERT(false, ("Failed applying gamma to " + fn_name));
   }
 }
 
@@ -312,4 +404,15 @@ void CSEM::PrintStack()
     temp.pop();
   }
   cout << " |S";
+}
+
+void CSEM::PrintEnv()
+{
+  cout << "ENV " << _env_stack.top().n << ":";
+  for (int i = 0 ; i < _env_stack.top().substitutions.size() ; i++)
+  {
+    cout << _env_stack.top().substitutions[i].first << " / "
+      << _env_stack.top().substitutions[i].second << " , ";
+  }
+  cout << "\n";
 }
