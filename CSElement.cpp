@@ -9,22 +9,22 @@ namespace CSL
     switch (el.type)
     {
       case r_id:
-        output << "<ID: " << boost::get<cs_name>(el.detail).name << ">";
+        output << boost::get<cs_name>(el.detail).name;
         break;
       case r_int:
-        output << "<INT: " << boost::get<cs_int>(el.detail).val << ">";
+        output << boost::get<cs_int>(el.detail).val ;
         break;
       case r_str:
-        output << "<STR: " << boost::get<cs_str>(el.detail).val << ">";
+        output << boost::get<cs_str>(el.detail).val;
         break;
       case r_truth:
-        output << "<" << (boost::get<cs_truth>(el.detail).val ? "true" : "false") << ">";
+        output << (boost::get<cs_truth>(el.detail).val ? "true" : "false");
         break;
       case r_nil:
-        output << "<nil>";
+        output << "nil";
         break;
       case r_dummy:
-        output << "<dummy>";
+        output << "dummy";
         break;
       case r_env:
         output << "<e>";
@@ -56,7 +56,7 @@ namespace CSL
           output << (boost::get<cs_lambda>(el.detail).vars[i]).name << ", ";
         }
         output << (boost::get<cs_lambda>(el.detail).vars[i]).name;
-        output << ") env= " << boost::get<cs_lambda>(el.detail).env.n << ">";
+        output << ")" << boost::get<cs_lambda>(el.detail).env.n << ">";
         break;
       case r_tuple:
         output << "(";

@@ -282,7 +282,7 @@ void CSEM::PrintControl()
   }
   while (!temp.empty())
   {
-    cout << temp.top();
+    cout << " " << temp.top() << " ";
     _control.push(temp.top());
     temp.pop();
   }
@@ -293,7 +293,7 @@ void CSEM::PrintStack()
   stack<cs_element> temp;
   while (!_stack.empty())
   {
-    cout << _stack.top();
+    cout << " " <<_stack.top() << " ";
     temp.push(_stack.top());
     _stack.pop();
   }
