@@ -1,0 +1,25 @@
+gamma 
+.lambda 
+..<ID:f> 
+..tau 
+...gamma 
+....<ID:Print> 
+....tau 
+.....gamma 
+......<ID:f> 
+......gamma 
+.......<ID:f> 
+.......<INT:3> 
+.....<INT:12> 
+...gamma 
+....<ID:Print> 
+....<STR:'Hello'> 
+.lambda 
+..<ID:x> 
+..-> 
+...eq 
+....<ID:x> 
+....<INT:1> 
+...<INT:2> 
+...<INT:1> 
+Hello(2, 12)

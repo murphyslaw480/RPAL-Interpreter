@@ -269,6 +269,15 @@ void CSEM::apply_function(CSL::cs_element fn_name_el)
     cout << _stack.top();
     _stack.pop();
   }
+  else if (fn_name.compare("Conc") == 0)
+  {
+    _stack.pop();   //pop Conc
+    string s1 = boost::get<cs_str>(_stack.top().detail).val;
+    _stack.pop();   //pop str1
+    string s2 = boost::get<cs_str>(_stack.top().detail).val;
+    _stack.pop();   //pop str2
+    _stack.push(CSL::make_str(s1 + s2));
+  }
 }
 
 void CSEM::PrintControl()

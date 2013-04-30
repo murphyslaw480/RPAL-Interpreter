@@ -1,2 +1,2 @@
 let f x = x eq 1 -> 2 | 1
-in Print(f (f 3))
+in (Print(f (f 3), 12), Print('Hello'))

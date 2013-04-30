@@ -103,6 +103,7 @@ int main(int argc, char** argv)
     Flattener::PrintCS(boost::get<CSL::cs_control_struct>(cs.detail));
   }
 
+  
   CSEM csem(cs);
   if (interactive)
   {
@@ -123,7 +124,9 @@ int main(int argc, char** argv)
   else
   {
     csem.Run();
+    cout << "\n";
   }
 
   return 0;
+
 }

@@ -33,7 +33,7 @@ namespace CSL
         output << "<d>";
         break;
       case r_tau:
-        output << "<tau>";
+        output << "<tau" << boost::get<cs_tau>(el.detail).n << ">";
         break;
       case r_cond:
         output << "<cond>";
