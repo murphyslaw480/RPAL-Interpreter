@@ -58,8 +58,8 @@ namespace CSL
       case r_lambda:
         output << "[lambda closure: ";
         int i;
-        output << (boost::get<cs_lambda>(el.detail).vars[i]).name;
-        for (i = 1 ; i < boost::get<cs_lambda>(el.detail).vars.size() - 1 ; i++ )
+        output << (boost::get<cs_lambda>(el.detail).vars[0]).name;
+        for (i = 1 ; i < boost::get<cs_lambda>(el.detail).vars.size() ; i++ )
         {
           output << ", " << (boost::get<cs_lambda>(el.detail).vars[i]).name ;
         }

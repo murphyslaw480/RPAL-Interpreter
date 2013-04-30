@@ -254,7 +254,7 @@ void CSEM::apply_tuple_index(cs_element gam_el)
   cs_element idx_el = _stack.top();
   _stack.pop();
   ASSERT(idx_el.type == r_int, "apply tuple index expected int index, got " + idx_el.type);
-  _stack.push(boost::get<cs_tuple>(tup_el.detail).elements[boost::get<cs_int>(idx_el.detail).val]);
+  _stack.push(boost::get<cs_tuple>(tup_el.detail).elements[boost::get<cs_int>(idx_el.detail).val - 1]);
 }
 
 //lookup element in current environment
@@ -358,7 +358,7 @@ void CSEM::apply_function(CSL::cs_element fn_name_el)
     ASSERT(_stack.top().type == r_str, "Cannot compute Stem of non-string");
     string s = boost::get<cs_str>(_stack.top().detail).val;
     _stack.pop();   //pop element to compute Stem of
-    _stack.push(CSL::make_str("" + s.at(0)));
+    _stack.push(CSL::make_str(s.substr(0,1)));
   }
   else if (fn_name.compare("Stern") == 0)
   {
