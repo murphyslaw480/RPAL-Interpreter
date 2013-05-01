@@ -1,1 +1,7 @@
-None so far
+Ryan Roden-Corrent
+4869-9998
+RPAL Interpreter
+
+BUGS:
+Interpreter fails 9 of the tests.
+It freezes on tiny and tiny.1 - please press Ctrl-C to skip these.

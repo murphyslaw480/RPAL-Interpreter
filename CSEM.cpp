@@ -384,7 +384,7 @@ void CSEM::apply_function(CSL::cs_element fn_name_el)
   else if (fn_name.compare("ItoS") == 0)
   { //int to string
     _stack.pop();   //pop ItoS
-    ASSERT(_stack.top().type == r_str, "Cannot compute ItoS of non-int");
+    ASSERT(_stack.top().type == r_int, "Cannot compute ItoS of non-int");
     int num = boost::get<cs_int>(_stack.top().detail).val;
     _stack.pop();   //pop int
     string s = boost::lexical_cast<string>(num);

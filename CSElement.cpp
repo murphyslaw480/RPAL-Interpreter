@@ -65,7 +65,6 @@ namespace CSL
           output << ", " << (boost::get<cs_lambda>(el.detail).vars[i]).name ;
         }
         output << ": " << boost::get<cs_lambda>(el.detail).control_struct.idx << "]";
-        output << "(e" << boost::get<cs_lambda>(el.detail).env.n << ")";
         break;
       case r_tuple:
         output << "(";
