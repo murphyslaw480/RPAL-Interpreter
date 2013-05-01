@@ -55,6 +55,10 @@ class CSEM
         //special functions
         void apply_function(CSL::cs_element fn_name_el);
 
+        //recursion
+        void apply_ystar();
+        void apply_rec_lambda(CSL::cs_element rec_lam_el);
+
         //open env(new_inx) on top of env(base_idx)
         void open_env(int new_idx, int base_idx);
         //lookup element in current environment

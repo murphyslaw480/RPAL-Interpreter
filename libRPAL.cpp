@@ -48,13 +48,13 @@ namespace LIB_RPAL
         return CSL::make_tuple(tup_vals);
       }
     }
-    else if (op_str.compare("and") == 0 || op_str.compare("or") == 0)
+    else if (op_str.compare("&") == 0 || op_str.compare("or") == 0)
     {
-      ASSERT(rand1.type == r_truth, "and expected truthval, got " + rand1.type);
-      ASSERT(rand2.type == r_truth, "and expected truthval, got " + rand2.type);
+      ASSERT(rand1.type == r_truth, "& expected truthval, got " + rand1.type);
+      ASSERT(rand2.type == r_truth, "& expected truthval, got " + rand2.type);
       bool val1 = boost::get<cs_truth>(rand1.detail).val;
       bool val2 = boost::get<cs_truth>(rand2.detail).val;
-      if (op_str.compare("and") == 0)
+      if (op_str.compare("&") == 0)
       {
         return CSL::make_truth(val1 && val2);
       }

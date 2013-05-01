@@ -148,16 +148,11 @@ void Flattener::flatten(Fcns *node, vector<CSL::cs_element> &list)
         }
         return; //dont flatten children onto current list
 
-      case r_ystar:
-        {//recursion
-          ASSERT(false, "Recursion not implemented");
-        }
-        break;
-
       case r_gamma:
       case r_nil:
       case r_dummy:
-        { //gamma, nil, dummy have no special information
+      case r_ystar:
+        { //gamma, nil, dummy, ystar have no special information
           cs_element generic_el;
           generic_el.type = et;
           list.push_back(generic_el);

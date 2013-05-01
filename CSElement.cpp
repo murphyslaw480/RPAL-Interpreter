@@ -56,7 +56,8 @@ namespace CSL
         output << "<OPERATOR: " << boost::get<cs_op>(el.detail).op << ">";
         break;
       case r_lambda:
-        output << "[lambda closure: ";
+      case r_rec_lambda:
+        output << (el.type == r_lambda ? "[lambda closure: " : "[RLAM:");
         int i;
         output << (boost::get<cs_lambda>(el.detail).vars[0]).name;
         for (i = 1 ; i < boost::get<cs_lambda>(el.detail).vars.size() ; i++ )
@@ -64,6 +65,7 @@ namespace CSL
           output << ", " << (boost::get<cs_lambda>(el.detail).vars[i]).name ;
         }
         output << ": " << boost::get<cs_lambda>(el.detail).control_struct.idx << "]";
+        output << "(e" << boost::get<cs_lambda>(el.detail).env.n << ")";
         break;
       case r_tuple:
         output << "(";

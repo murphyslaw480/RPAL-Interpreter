@@ -125,6 +125,8 @@ int main(int argc, char** argv)
         cout << "\t||\t";
         csem.PrintStack();
         cout << "\n";
+        csem.PrintEnv();
+        cout << "\n";
         csem.Step();
       }
     }

@@ -72,6 +72,16 @@ void CSEM::Step()
         //special function handling
         apply_function(_stack.top());
       }
+      else if (_stack.top().type == r_ystar)
+      {
+        //special function handling
+        apply_ystar();
+      }
+      else if (_stack.top().type == r_rec_lambda)
+      {
+        //special function handling
+        apply_rec_lambda(_stack.top());
+      }
       break;
     case r_env:
       exit_env(el);
@@ -85,6 +95,9 @@ void CSEM::Step()
     case r_int:
     case r_truth:
     case r_str:
+    case r_dummy:
+    case r_nil:
+    case r_ystar:
       _stack.push(el);
       break;
     default:
@@ -385,10 +398,6 @@ void CSEM::apply_function(CSL::cs_element fn_name_el)
 
 void CSEM::PrintControl()
 {
-  if (_control.top().type == r_cond)
-  {
-    PrintCond();
-  }
   cout << "C| ";
   stack<cs_element> temp;
   while (!_control.empty())
@@ -438,4 +447,20 @@ void CSEM::PrintCond()
     = boost::get<cs_cond>(_control.top().detail).clauses;
   cout << "IF_TRUE: " << CSL::make_control_struct(clauses.first.elements, clauses.first.idx) << "\n";
   cout << "IF_FALSE: " << CSL::make_control_struct(clauses.second.elements, clauses.first.idx) << "\n";
+}
+
+void CSEM::apply_ystar()
+{
+  _stack.pop(); //pop y*
+  _stack.top().type = r_rec_lambda;
+}
+
+void CSEM::apply_rec_lambda(CSL::cs_element rec_lam_el)
+{
+  _stack.push(_stack.top());
+  _stack.top().type = r_lambda;
+  cs_element gam;
+  gam.type = r_gamma;
+  _control.push(gam);
+  _control.push(gam);
 }
