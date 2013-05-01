@@ -276,7 +276,7 @@ cs_element CSEM::lookup(cs_element name_el)
   ASSERT(name_el.type == r_id, "lookup expected r_name, got " + name_el.type);
   string name = boost::get<cs_name>(name_el.detail).name;
   vector<pair<string,cs_element> > subs = _env_stack.top().substitutions;
-  for (int i = 0 ; i < subs.size() ; i++)
+  for (int i = subs.size() - 1 ; i >= 0 ; i--)
   {
     if (name.compare(subs[i].first) == 0)
     {

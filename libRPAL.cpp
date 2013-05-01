@@ -43,7 +43,7 @@ namespace LIB_RPAL
       else
       {
         vector<cs_element> tup_vals;
-        tup_vals.push_back(rand1);
+        //tup_vals.push_back(rand1);
         tup_vals.push_back(rand2);
         return CSL::make_tuple(tup_vals);
       }
